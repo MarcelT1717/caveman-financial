@@ -97,7 +97,7 @@ const Sectors = () => {
       
       try {
         const promises = allTickers.map(ticker =>
-          axios.get(`${BACKEND_URL}/api/stocks/details/${ticker}`)
+          axios.get(`${BACKEND_URL}/api/stocks/quote/${ticker}`)
             .then(res => ({ [ticker]: res.data }))
             .catch(err => {
               console.error(`Error fetching ${ticker}:`, err);
