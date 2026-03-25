@@ -5,16 +5,19 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const StockCarousel = () => {
   const [stocks, setStocks] = useState([
-    { ticker: 'ASTS', sector: 'Space', change: 0, price: 0 },
+    { ticker: 'ONDS', sector: 'Defense', change: 0, price: 0 },
     { ticker: 'QBTS', sector: 'Quantum', change: 0, price: 0 },
     { ticker: 'JOBY', sector: 'Aviation', change: 0, price: 0 },
-    { ticker: 'RGTI', sector: 'Quantum', change: 0, price: 0 },
-    { ticker: 'IONQ', sector: 'Quantum', change: 0, price: 0 },
+    { ticker: 'CIFR', sector: 'Datacenter', change: 0, price: 0 },
+    { ticker: 'AMPX', sector: 'Battery', change: 0, price: 0 },
     { ticker: 'LUNR', sector: 'Space', change: 0, price: 0 },
     { ticker: 'SERV', sector: 'Robotics', change: 0, price: 0 },
     { ticker: 'SMR', sector: 'Nuclear', change: 0, price: 0 },
     { ticker: 'HIMS', sector: 'Healthcare', change: 0, price: 0 },
     { ticker: 'MARA', sector: 'Crypto', change: 0, price: 0 },
+    { ticker: 'ZETA', sector: 'AI', change: 0, price: 0 },
+    { ticker: 'SOFI', sector: 'Finance', change: 0, price: 0 },
+    { ticker: 'UAMY', sector: 'Minerals', change: 0, price: 0 },
   ]);
 
   useEffect(() => {

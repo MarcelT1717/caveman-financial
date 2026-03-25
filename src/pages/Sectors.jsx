@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plane, Cpu, Rocket, Bot, Zap, Atom, Mountain, Heart, Brain, Bitcoin, TrendingUp, BarChart2, Newspaper, ArrowRight, Mail } from 'lucide-react';
+import { Plane, Cpu, Rocket, Bot, Zap, Atom, Mountain, Heart, Brain, Bitcoin, TrendingUp, BarChart2, Newspaper, ArrowRight, Mail, Radar, Server, Shield, DollarSign } from 'lucide-react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -32,7 +32,7 @@ const Sectors = () => {
       name: 'Aviation',
       icon: Plane,
       description: 'Electric vertical takeoff and landing (eVTOL) and advanced air mobility',
-      stocks: ['JOBY', 'ACHR', 'FLY'],
+      stocks: ['JOBY', 'ACHR', 'BETA'],
     },
     {
       name: 'Quantum',
@@ -50,43 +50,67 @@ const Sectors = () => {
       name: 'Robotics',
       icon: Bot,
       description: 'Advanced robotics for service, manufacturing, and logistics',
-      stocks: ['SERV', 'RR', 'KRKNF'],
+      stocks: ['SERV', 'RR', 'PATH'],
     },
     {
-      name: 'Energy',
+      name: 'Bettery',
       icon: Zap,
       description: 'Next-gen battery technology and energy storage solutions',
-      stocks: ['QS', 'EOSE', 'TE'],
+      stocks: ['AMPX', 'QS', 'EOSE'],
     },
     {
       name: 'Nuclear',
       icon: Atom,
       description: 'Small modular reactors and next-generation nuclear power',
-      stocks: ['SMR', 'NNE', 'OKLO'],
+      stocks: ['SMR', 'RYCEY', 'OKLO'],
     },
     {
       name: 'Minerals',
       icon: Mountain,
       description: 'Rare earth elements and critical minerals for technology',
-      stocks: ['USAR', 'UAMY', 'TMC'],
+      stocks: ['USAR', 'UAMY', 'UUUU'],
     },
     {
       name: 'Healthcare',
       icon: Heart,
       description: 'Telemedicine, gene editing, and precision healthcare',
-      stocks: ['HIMS', 'OSCR', 'CRSP'],
+      stocks: ['HIMS', 'TEM', 'CRSP'],
     },
     {
       name: 'AI',
       icon: Brain,
       description: 'Artificial intelligence platforms and data analytics',
-      stocks: ['ZETA', 'BBAI', 'RZLV'],
+      stocks: ['ZETA', 'BNAI', 'POET'],
+    },
+    {
+      name: 'Drone',
+      icon: Radar,
+      description: 'Nextgen drone technology and defense',
+      stocks: ['ONDS', 'KRKNF', 'UMAC'],
+    },
+    {
+      name: 'Datacenter',
+      icon: Server,
+      description: 'Data centers and computing infrastructure',
+      stocks: ['IREN', 'CIFR', 'APLD'],
+    },
+    {
+      name: 'Defense',
+      icon: Shield,
+      description: 'Military technology and infrastructure',
+      stocks: ['FLY', 'RCAT', 'KTOS'],
+    },
+    {
+      name: 'Finance',
+      icon: DollarSign,
+      description: 'Financial services and business',
+      stocks: ['FIGR', 'SOFI', 'UPST'],
     },
     {
       name: 'Crypto',
       icon: Bitcoin,
       description: 'Bitcoin mining, crypto infrastructure, and blockchain',
-      stocks: ['CIFR', 'WULF', 'MARA'],
+      stocks: ['BITF', 'WULF', 'MARA'],
     },
   ];
 
