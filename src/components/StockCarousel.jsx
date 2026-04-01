@@ -23,39 +23,24 @@ const StockCarousel = () => {
   useEffect(() => {
     const fetchStockData = async () => {
       const tickers = stocks.map(s => s.ticker);
-      
+
       try {
-        const promises = tickers.map(ticker =>
-          axios.get(`${BACKEND_URL}/api/stocks/quote/${ticker}`)
-            .then(res => res.data)
-            .catch(err => {
-              console.error(`Error fetching ${ticker}:`, err);
-              return null;
-            })
-        );
-        
-        const results = await Promise.all(promises);
-        
-        const updatedStocks = stocks.map((stock, index) => {
-          const data = results[index];
-          if (data) {
-            return {
-              ...stock,
-              price: data.price,
-              change: data.change_percent
-            };
-          }
-          return stock;
-        });
-        
-        setStocks(updatedStocks);
+        const res = await axios.post(`${BACKEND_URL}/api/stocks/batch`, tickers);
+        const results = res.data;
+
+        const priceMap = {};
+        results.forEach(q => { priceMap[q.ticker] = q; });
+
+        setStocks(prev => prev.map(stock => {
+          const q = priceMap[stock.ticker];
+          return q ? { ...stock, price: q.price, change: q.change_percent } : stock;
+        }));
       } catch (error) {
         console.error('Error fetching stock data:', error);
       }
     };
 
     fetchStockData();
-    // Refresh every 5 minutes
     const interval = setInterval(fetchStockData, 300000);
     return () => clearInterval(interval);
   }, []);

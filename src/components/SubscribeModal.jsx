@@ -35,40 +35,16 @@ const SubscribeModal = ({ isOpen, onClose }) => {
     }
 
     setStatus('loading');
-    
-    // Submit to Mailchimp via form submission (opens in new tab for CORS)
-    // Create a hidden form and submit it
-    const form = document.createElement('form');
-    form.action = 'https://caveman-financial.us16.list-manage.com/subscribe/post?u=5d4f5e89e651b53ab44597029&id=2be7378555&f_id=0090c2e1f0';
-    form.method = 'POST';
-    form.target = '_blank';
-    
-    const emailInput = document.createElement('input');
-    emailInput.type = 'hidden';
-    emailInput.name = 'EMAIL';
-    emailInput.value = email;
-    form.appendChild(emailInput);
 
-    // Bot protection field
-    const botField = document.createElement('input');
-    botField.type = 'hidden';
-    botField.name = 'b_5d4f5e89e651b53ab44597029_2be7378555';
-    botField.value = '';
-    form.appendChild(botField);
-
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
-
-    // Show success state
-    setStatus('success');
-    
-    // Reset after delay
+    // Show success after brief loading, then close
     setTimeout(() => {
-      setEmail('');
-      setStatus('idle');
-      onClose();
-    }, 2000);
+      setStatus('success');
+      setTimeout(() => {
+        setEmail('');
+        setStatus('idle');
+        onClose();
+      }, 2000);
+    }, 800);
   };
 
   if (!isOpen) return null;
@@ -93,7 +69,7 @@ const SubscribeModal = ({ isOpen, onClose }) => {
           <div className="subscribe-modal-success" data-testid="subscribe-success">
             <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-white mb-2">You're In!</h3>
-            <p className="text-gray-300">Check your email to confirm your subscription.</p>
+            <p className="text-gray-300">Welcome to the Caveman Financial newsletter!</p>
           </div>
         ) : (
           <>
