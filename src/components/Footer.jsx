@@ -1,10 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Linkedin, ArrowRight } from 'lucide-react';
-import { useSubscribe } from '../context/SubscribeContext';
+import { Mail, Linkedin } from 'lucide-react';
 
 const Footer = () => {
-  const { openSubscribeModal } = useSubscribe();
   const sectors = [
     'Aviation',
     'Quantum Computing',
@@ -78,26 +76,6 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-
-        {/* Newsletter Subscribe Bar */}
-        <div className="footer-subscribe-bar">
-          <div className="flex items-center justify-between gap-6 flex-wrap">
-            <div className="flex-1 min-w-[300px]">
-              <h3 className="h4 mb-2">Stay Ahead of the Market</h3>
-              <p className="body-sm text-text-muted">
-                Get weekly insights on small cap opportunities delivered to your inbox
-              </p>
-            </div>
-            <button 
-              className="btn-primary"
-              onClick={openSubscribeModal}
-              data-testid="footer-subscribe-button"
-            >
-              Subscribe Now
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </button>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, ArrowRight, Sparkles, Mail, FileText, BarChart3, Newspaper, Bell, DollarSign, TrendingDown, ChevronDown } from 'lucide-react';
+import { TrendingUp, ArrowRight, Sparkles, Mail, FileText, BarChart3, Newspaper, Bell, DollarSign, ChevronDown, Zap, Calendar, Clock } from 'lucide-react';
 import StockCarousel from '../components/StockCarousel';
 import TopSectors from '../components/TopSectors';
 import MarketState from '../components/MarketState';
@@ -8,13 +8,84 @@ import { useSubscribe } from '../context/SubscribeContext';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+const services = [
+  {
+    icon: BarChart3,
+    title: 'Weekly Market Insights',
+    desc: 'In-depth analysis of market trends, momentum shifts, and high-conviction opportunities delivered every week.',
+    freq: 'WEEKLY',
+    freqKey: 'weekly',
+  },
+  {
+    icon: Newspaper,
+    title: 'Sector Deep Dives',
+    desc: 'Comprehensive research reports on emerging sectors: defense tech, quantum computing, space, and more.',
+    freq: 'WEEKLY',
+    freqKey: 'weekly',
+  },
+  {
+    icon: DollarSign,
+    title: 'Earnings Radar',
+    desc: 'Earnings calendar, analyst estimates, and post-earnings analysis for every stock in our coverage universe.',
+    freq: 'WEEKLY',
+    freqKey: 'weekly',
+  },
+  {
+    icon: Bell,
+    title: 'Breaking Stock Alerts',
+    desc: 'Immediate notifications on significant price movements, catalyst events, and time-sensitive trading opportunities.',
+    freq: 'REAL-TIME',
+    freqKey: 'realtime',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Fed Watch',
+    desc: 'Federal Reserve policy analysis, rate decision breakdowns, and liquidity implications for growth and small cap stocks.',
+    freq: 'REAL-TIME',
+    freqKey: 'realtime',
+  },
+  {
+    icon: FileText,
+    title: 'Macro & Economic Reports',
+    desc: 'Key economic indicators, inflation data, and a macro framework that ties directly into small cap sector rotation.',
+    freq: 'MONTHLY',
+    freqKey: 'monthly',
+  },
+];
+
+const TABS = [
+  { key: 'all', label: 'All Reports', icon: Sparkles },
+  { key: 'weekly', label: 'Weekly', icon: Calendar },
+  { key: 'realtime', label: 'Real-Time', icon: Zap },
+  { key: 'monthly', label: 'Monthly', icon: Clock },
+];
+
+function useScrollReveal() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+}
+
 const Home = () => {
   const [openFaq, setOpenFaq] = React.useState(null);
   const { openSubscribeModal } = useSubscribe();
   const [articles, setArticles] = useState([]);
   const [articlesLoading, setArticlesLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('all');
+  const [prevTab, setPrevTab] = useState('all');
 
-  // Fetch real articles from API
+  const [servicesRef, servicesVisible] = useScrollReveal();
+  const [scheduleRef, scheduleVisible] = useScrollReveal();
+  const [faqRef, faqVisible] = useScrollReveal();
+
   useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -32,20 +103,21 @@ const Home = () => {
     fetchArticles();
   }, []);
 
-  // Format date for display
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  // Open PDF in new tab
   const openArticle = (article) => {
     window.open(`${API_URL}${article.pdf_url}`, '_blank');
   };
+
+  const handleTabChange = (key) => {
+    setPrevTab(activeTab);
+    setActiveTab(key);
+  };
+
+  const filteredServices = activeTab === 'all' ? services : services.filter(s => s.freqKey === activeTab);
 
   const faqItems = [
     {
@@ -64,17 +136,17 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Stock Ticker at Top */}
+      {/* Stock Ticker */}
       <StockCarousel />
 
-      {/* Hero Section - Newsletter Focus with Background Image */}
+      {/* Hero Section */}
       <section className="hero-section-financial">
         <div className="hero-overlay"></div>
         <div className="container">
           <div className="hero-content-financial">
-            <div className="hero-badge mx-auto">
-              <Sparkles className="w-4 h-4 mr-2" />
-              The next breakthrough stock is around the corner
+            <div className="hero-live-badge mx-auto">
+              <span className="hero-live-dot"></span>
+              Constantly Updated Research
             </div>
 
             <h1 className="hero-title-financial">
@@ -83,18 +155,17 @@ const Home = () => {
             </h1>
 
             <p className="hero-description-financial">
-              Expert analysis on emerging sectors and high-growth opportunities. Get weekly insights delivered to your inbox.
+              Expert analysis on emerging sectors and high-growth opportunities — delivered on a schedule you can count on.
             </p>
 
-            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <button 
+              <button
                 className="btn-primary btn-large"
                 onClick={openSubscribeModal}
                 data-testid="hero-subscribe-button"
               >
                 <Mail className="w-5 h-5 mr-2" />
-                Subscribe Now - It's Free
+                Subscribe Free
               </button>
               <Link to="/sectors" className="btn-secondary-outlined btn-large">
                 <TrendingUp className="w-5 h-5 mr-2" />
@@ -102,7 +173,6 @@ const Home = () => {
               </Link>
             </div>
 
-            {/* Stats */}
             <div className="hero-stats-financial">
               <div className="hero-stat-item-financial">
                 <div className="hero-stat-number-financial">100+</div>
@@ -111,7 +181,7 @@ const Home = () => {
               <div className="hero-stat-divider"></div>
               <div className="hero-stat-item-financial">
                 <div className="hero-stat-number-financial">Weekly</div>
-                <div className="hero-stat-label-financial">Insights</div>
+                <div className="hero-stat-label-financial">Reports</div>
               </div>
               <div className="hero-stat-divider"></div>
               <div className="hero-stat-item-financial">
@@ -123,92 +193,125 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Newsletter Benefits Section - Light Theme */}
-      <section className="benefits-section-light">
+      {/* Services Section */}
+      <section className="services-section" ref={servicesRef}>
         <div className="container">
-          {/* Section Title - More Prominent */}
-          <div className="benefits-section-header">
-            <h2 className="benefits-section-title">
-              Comprehensive Market Intelligence
-              <span className="benefits-section-subtitle">Delivered Weekly to Your Inbox</span>
-            </h2>
-            <p className="benefits-section-description">
-              Stay ahead of market trends with our expert analysis, research reports, and real-time alerts on breakthrough sectors and high-growth opportunities
+          <div className={`section-header reveal-section ${servicesVisible ? 'revealed' : ''}`}>
+            <div className="services-eyebrow">
+              <Sparkles className="w-4 h-4" />
+              Stay Sharp
+            </div>
+            <h2 className="display-md mb-4">Know More Than the Market</h2>
+            <p className="body-lg text-text-secondary max-w-2xl mx-auto">
+              Cut through the noise. Get the research, alerts, and sector intelligence that actually moves the needle.
             </p>
           </div>
 
-          <div className="newsletter-benefits-grid-light">
-            <div className="benefit-item-light">
-              <div className="benefit-icon-light">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <h3 className="benefit-title-light">Weekly Market Insights</h3>
-              <p className="benefit-desc-light">In-depth analysis of market trends and opportunities</p>
-            </div>
-            <div className="benefit-item-light">
-              <div className="benefit-icon-light">
-                <FileText className="w-6 h-6" />
-              </div>
-              <h3 className="benefit-title-light">Macro & Economic Reports</h3>
-              <p className="benefit-desc-light">Key economic indicators and their market impact</p>
-            </div>
-            <div className="benefit-item-light">
-              <div className="benefit-icon-light">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <h3 className="benefit-title-light">Fed Watch</h3>
-              <p className="benefit-desc-light">Federal Reserve policy analysis and implications</p>
-            </div>
-            <div className="benefit-item-light">
-              <div className="benefit-icon-light">
-                <Newspaper className="w-6 h-6" />
-              </div>
-              <h3 className="benefit-title-light">Sector Deep Dives</h3>
-              <p className="benefit-desc-light">Comprehensive sector research and analysis</p>
-            </div>
-            <div className="benefit-item-light">
-              <div className="benefit-icon-light">
-                <Bell className="w-6 h-6" />
-              </div>
-              <h3 className="benefit-title-light">Breaking Stock Alerts</h3>
-              <p className="benefit-desc-light">Real-time alerts on significant market movements</p>
-            </div>
-            <div className="benefit-item-light">
-              <div className="benefit-icon-light">
-                <DollarSign className="w-6 h-6" />
-              </div>
-              <h3 className="benefit-title-light">Earnings Radar</h3>
-              <p className="benefit-desc-light">Earnings calendar and performance tracking</p>
-            </div>
+          {/* Tab Filter */}
+          <div className="services-tab-bar">
+            {TABS.map(({ key, label, icon: Icon }) => (
+              <button
+                key={key}
+                className={`services-tab ${activeTab === key ? 'active' : ''}`}
+                onClick={() => handleTabChange(key)}
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </button>
+            ))}
           </div>
 
-          {/* FAQ / About Us Section - Integrated */}
-          <div className="faq-section-integrated">
-            <div className="text-center mb-12 mt-20">
-              <h2 className="h2 mb-4" style={{ color: '#1f2937' }}>A Little More About Us</h2>
-              <p className="body-lg" style={{ color: '#6b7280' }}>
+          {/* Service Cards */}
+          <div className="services-grid">
+            {filteredServices.map((service, i) => {
+              const Icon = service.icon;
+              return (
+                <div
+                  key={service.title}
+                  className="service-card"
+                  style={{ animationDelay: `${i * 0.08}s` }}
+                >
+                  <span className={`freq-badge freq-${service.freqKey}`}>{service.freq}</span>
+                  <div className="service-card-icon">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="service-card-title">{service.title}</h3>
+                  <p className="service-card-desc">{service.desc}</p>
+                  <div className="service-card-arrow">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Delivery Schedule */}
+          <div className={`delivery-schedule reveal-section ${scheduleVisible ? 'revealed' : ''}`} ref={scheduleRef}>
+            <div className="delivery-schedule-header">
+              <h3 className="delivery-schedule-title">Always in the Loop</h3>
+              <p className="delivery-schedule-subtitle">Fresh intelligence hitting your inbox on repeat</p>
+            </div>
+            <div className="delivery-schedule-grid">
+              <div className="delivery-item delivery-realtime">
+                <div className="delivery-freq-label">
+                  <span className="pulse-dot-small"></span>
+                  REAL-TIME
+                </div>
+                <ul className="delivery-list">
+                  <li><Bell className="w-3.5 h-3.5" /> Breaking Stock Alerts</li>
+                  <li><TrendingUp className="w-3.5 h-3.5" /> Fed Watch Updates</li>
+                </ul>
+              </div>
+              <div className="delivery-connector">→</div>
+              <div className="delivery-item delivery-weekly">
+                <div className="delivery-freq-label">EVERY WEEK</div>
+                <ul className="delivery-list">
+                  <li><BarChart3 className="w-3.5 h-3.5" /> Market Insights Report</li>
+                  <li><Newspaper className="w-3.5 h-3.5" /> Sector Deep Dives</li>
+                  <li><DollarSign className="w-3.5 h-3.5" /> Earnings Radar</li>
+                </ul>
+              </div>
+              <div className="delivery-connector">→</div>
+              <div className="delivery-item delivery-monthly">
+                <div className="delivery-freq-label">MONTHLY</div>
+                <ul className="delivery-list">
+                  <li><FileText className="w-3.5 h-3.5" /> Macro & Economic Report</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About / FAQ Section — light background */}
+      <section className="faq-light-section" ref={faqRef}>
+        <div className="container">
+          <div className={`reveal-section ${faqVisible ? 'revealed' : ''}`}>
+            <div className="text-center mb-12">
+              <h2 className="faq-light-heading">A Little More About Us</h2>
+              <p className="faq-light-subheading">
                 Learn about our approach, philosophy, and how you can stay connected
               </p>
             </div>
-
             <div className="faq-container-light">
               {faqItems.map((item, index) => (
-                <div key={index} className="faq-item-light">
+                <div key={index} className={`faq-item-light ${openFaq === index ? 'open-item' : ''}`}>
                   <button
-                    className={`faq-question-light ${openFaq === index ? 'active' : ''}`}
+                    className="faq-question-light"
                     onClick={() => setOpenFaq(openFaq === index ? null : index)}
                   >
                     <span className="faq-question-text-light">{item.question}</span>
-                    <ChevronDown 
-                      className={`faq-icon-light ${openFaq === index ? 'rotate' : ''}`}
-                      size={24}
-                    />
+                    <div className={`faq-icon-wrap ${openFaq === index ? 'rotate' : ''}`}>
+                      <ChevronDown size={16} />
+                    </div>
                   </button>
                   <div className={`faq-answer-light ${openFaq === index ? 'open' : ''}`}>
-                    <div className="faq-answer-content-light">
-                      {item.answer.split('\n\n').map((paragraph, idx) => (
-                        <p key={idx} className="mb-4 last:mb-0">{paragraph}</p>
-                      ))}
+                    <div className="faq-answer-inner">
+                      <div className="faq-answer-content-light">
+                        {item.answer.split('\n\n').map((paragraph, idx) => (
+                          <p key={idx} className="mb-4 last:mb-0">{paragraph}</p>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -218,10 +321,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Smooth Fade Transition - Light to Dark */}
-      <div className="fade-transition-light-to-dark"></div>
-
-      {/* Top 3 Sectors - Podium Style */}
+      {/* Top Sectors */}
       <section className="container py-24">
         <div className="section-header">
           <h2 className="display-md mb-4">Top Sectors We're Watching</h2>
@@ -232,10 +332,9 @@ const Home = () => {
         <TopSectors />
       </section>
 
-      {/* Section Divider */}
       <div className="section-divider"></div>
 
-      {/* Market State Dashboard */}
+      {/* Market Overview */}
       <section className="container py-24">
         <div className="section-header">
           <h2 className="display-md mb-4">Market Overview</h2>
@@ -246,10 +345,9 @@ const Home = () => {
         <MarketState />
       </section>
 
-      {/* Section Divider */}
       <div className="section-divider"></div>
 
-      {/* Featured Articles Section */}
+      {/* Latest Articles */}
       <section className="container py-24">
         <div className="section-header-with-cta">
           <div>
@@ -266,7 +364,6 @@ const Home = () => {
 
         <div className="articles-grid">
           {articlesLoading ? (
-            // Loading skeleton
             [1, 2, 3].map((i) => (
               <div key={i} className="article-card animate-pulse">
                 <div className="article-image-container mb-4 bg-bg-tertiary h-48"></div>
@@ -278,22 +375,16 @@ const Home = () => {
               </div>
             ))
           ) : articles.length === 0 ? (
-            // Empty state
             <div className="col-span-3 text-center py-12">
               <FileText className="w-16 h-16 mx-auto mb-4 text-text-muted" />
               <p className="text-text-muted">No articles yet. Check back soon!</p>
             </div>
           ) : (
-            // Real articles
             articles.map((article) => (
               <div key={article.id} className="article-card" onClick={() => openArticle(article)} style={{ cursor: 'pointer' }}>
                 <div className="article-image-container mb-4">
                   {article.cover_image ? (
-                    <img
-                      src={article.cover_image}
-                      alt={article.title}
-                      className="article-image"
-                    />
+                    <img src={article.cover_image} alt={article.title} className="article-image" />
                   ) : (
                     <div className="article-image-placeholder">
                       <FileText className="w-12 h-12 text-accent-primary" />
@@ -304,18 +395,12 @@ const Home = () => {
                     <span className="category-badge">{article.category}</span>
                   </div>
                 </div>
-
                 <div className="p-6">
                   <h3 className="h3 mb-3 line-clamp-2">{article.title}</h3>
-                  <p className="body-md text-text-secondary mb-4 line-clamp-3">
-                    {article.description}
-                  </p>
-
+                  <p className="body-md text-text-secondary mb-4 line-clamp-3">{article.description}</p>
                   <div className="flex items-center justify-between pt-4 border-t border-border-subtle">
                     <span className="body-sm text-text-muted">{formatDate(article.date)}</span>
-                    <span className="text-accent-primary hover:text-accent-hover font-medium body-sm">
-                      Read More →
-                    </span>
+                    <span className="text-accent-primary hover:text-accent-hover font-medium body-sm">Read More →</span>
                   </div>
                 </div>
               </div>
@@ -324,25 +409,20 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Section Divider */}
       <div className="section-divider"></div>
 
-      {/* Secondary Newsletter CTA */}
+      {/* Newsletter CTA */}
       <section className="container py-24">
         <div className="newsletter-cta-card">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex-1">
               <h2 className="display-sm mb-4">Don't Miss Out on Opportunities</h2>
               <p className="body-lg">
-                Join 10,000+ investors getting weekly insights on breakthrough sectors and high-growth small cap stocks.
+                Join investors getting weekly insights on breakthrough sectors and high-growth small cap stocks.
               </p>
             </div>
             <div className="flex-shrink-0">
-              <button 
-                className="btn-primary"
-                onClick={openSubscribeModal}
-                data-testid="cta-subscribe-button"
-              >
+              <button className="btn-primary" onClick={openSubscribeModal} data-testid="cta-subscribe-button">
                 Subscribe to Newsletter
                 <ArrowRight className="w-5 h-5 ml-2" />
               </button>
