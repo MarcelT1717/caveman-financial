@@ -2,27 +2,44 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const CACHE_KEY = 'stock_carousel_cache';
+
+const DEFAULT_STOCKS = [
+  { ticker: 'ONDS', sector: 'Defense', change: 0, price: 0 },
+  { ticker: 'QBTS', sector: 'Quantum', change: 0, price: 0 },
+  { ticker: 'JOBY', sector: 'Aviation', change: 0, price: 0 },
+  { ticker: 'CIFR', sector: 'Datacenter', change: 0, price: 0 },
+  { ticker: 'AMPX', sector: 'Battery', change: 0, price: 0 },
+  { ticker: 'LUNR', sector: 'Space', change: 0, price: 0 },
+  { ticker: 'SERV', sector: 'Robotics', change: 0, price: 0 },
+  { ticker: 'SMR', sector: 'Nuclear', change: 0, price: 0 },
+  { ticker: 'HIMS', sector: 'Healthcare', change: 0, price: 0 },
+  { ticker: 'MARA', sector: 'Crypto', change: 0, price: 0 },
+  { ticker: 'ZETA', sector: 'AI', change: 0, price: 0 },
+  { ticker: 'SOFI', sector: 'Finance', change: 0, price: 0 },
+  { ticker: 'UAMY', sector: 'Minerals', change: 0, price: 0 },
+];
+
+function loadCachedStocks() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (_) {}
+  return null;
+}
+
+function saveCachedStocks(stocks) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(stocks));
+  } catch (_) {}
+}
 
 const StockCarousel = () => {
-  const [stocks, setStocks] = useState([
-    { ticker: 'ONDS', sector: 'Defense', change: 0, price: 0 },
-    { ticker: 'QBTS', sector: 'Quantum', change: 0, price: 0 },
-    { ticker: 'JOBY', sector: 'Aviation', change: 0, price: 0 },
-    { ticker: 'CIFR', sector: 'Datacenter', change: 0, price: 0 },
-    { ticker: 'AMPX', sector: 'Battery', change: 0, price: 0 },
-    { ticker: 'LUNR', sector: 'Space', change: 0, price: 0 },
-    { ticker: 'SERV', sector: 'Robotics', change: 0, price: 0 },
-    { ticker: 'SMR', sector: 'Nuclear', change: 0, price: 0 },
-    { ticker: 'HIMS', sector: 'Healthcare', change: 0, price: 0 },
-    { ticker: 'MARA', sector: 'Crypto', change: 0, price: 0 },
-    { ticker: 'ZETA', sector: 'AI', change: 0, price: 0 },
-    { ticker: 'SOFI', sector: 'Finance', change: 0, price: 0 },
-    { ticker: 'UAMY', sector: 'Minerals', change: 0, price: 0 },
-  ]);
+  const [stocks, setStocks] = useState(() => loadCachedStocks() || DEFAULT_STOCKS);
 
   useEffect(() => {
     const fetchStockData = async () => {
-      const tickers = stocks.map(s => s.ticker);
+      const tickers = DEFAULT_STOCKS.map(s => s.ticker);
 
       try {
         const res = await axios.post(`${BACKEND_URL}/api/stocks/batch`, tickers);
@@ -31,10 +48,14 @@ const StockCarousel = () => {
         const priceMap = {};
         results.forEach(q => { priceMap[q.ticker] = q; });
 
-        setStocks(prev => prev.map(stock => {
-          const q = priceMap[stock.ticker];
-          return q ? { ...stock, price: q.price, change: q.change_percent } : stock;
-        }));
+        setStocks(prev => {
+          const updated = prev.map(stock => {
+            const q = priceMap[stock.ticker];
+            return q ? { ...stock, price: q.price, change: q.change_percent } : stock;
+          });
+          saveCachedStocks(updated);
+          return updated;
+        });
       } catch (error) {
         console.error('Error fetching stock data:', error);
       }
