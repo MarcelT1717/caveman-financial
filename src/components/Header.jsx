@@ -21,12 +21,13 @@ const Header = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo - Clickable to Home */}
           <Link to="/" className="flex items-center space-x-3 hover-lift">
-            <img 
-              src="https://customer-assets.emergentagent.com/job_21a7493f-957d-4ce7-a410-1ccdb2a9f4f5/artifacts/zqclioe8_lololololo.jfif" 
-              alt="Caveman Financial" 
+            <img
+              src="/favicon.png"
+              alt="Caveman Financial"
               className="h-12 w-auto"
+              onError={e => { e.target.style.display = 'none'; }}
             />
-            <span className="h3 hidden sm:block">Caveman Financial</span>
+            <span className="h3">Caveman Financial</span>
           </Link>
 
           {/* Desktop Navigation - Boxy Pills on Right */}
