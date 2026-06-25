@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Grid, BookOpen, Mail } from 'lucide-react';
+import { Menu, X, Grid, BookOpen, Mail, Activity } from 'lucide-react';
 import { useSubscribe } from '../context/SubscribeContext';
 
 const Header = () => {
@@ -11,6 +11,7 @@ const Header = () => {
   const navLinks = [
     { path: '/sectors', label: 'Sectors', icon: Grid },
     { path: '/library', label: 'Library', icon: BookOpen },
+    { path: '/macro',   label: 'Macro',   icon: Activity },
   ];
 
   const isActive = (path) => location.pathname === path;

@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import Sectors from "@/pages/Sectors";
 import Library from "@/pages/Library";
 import Admin from "@/pages/Admin";
+import MacroRegime from "@/pages/MacroRegime";
 import SubscribeModal from "@/components/SubscribeModal";
 import { SubscribeProvider, useSubscribe } from "@/context/SubscribeContext";
 
@@ -32,6 +33,7 @@ function AppContent() {
           <Route path="/sectors" element={<Sectors />} />
           <Route path="/library" element={<Library />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/macro" element={<MacroRegime />} />
         </Routes>
       </main>
       <Footer />
