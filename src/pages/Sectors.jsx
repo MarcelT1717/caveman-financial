@@ -133,6 +133,7 @@ const Sectors = () => {
     : allSectors.filter(s => activeCat?.sectors?.includes(s.name));
 
   return (
+    <>
     <div className="min-h-screen">
 
       {/* ── Hero ── */}
@@ -347,6 +348,7 @@ const Sectors = () => {
     </div>
 
     <StockDrawer ticker={selectedTicker} onClose={() => setSelectedTicker(null)} />
+    </>
   );
 };
 
