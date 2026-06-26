@@ -119,7 +119,7 @@ function OverviewTab({ quote, profile, metrics }) {
     ['Avg Vol (10D)',     m['10DayAverageTradingVolume'] ? fmtVol(m['10DayAverageTradingVolume'] * 1e6) : '—'],
     ['Shares Out.',       profile?.shareOutstanding ? fmtVol(profile.shareOutstanding * 1e6) : '—'],
     ['Dividend Yield',   m.dividendYieldIndicatedAnnual ? `${fmt(m.dividendYieldIndicatedAnnual)}%` : '—'],
-    ['52W Return',        m['52WeekPriceReturnDaily'] ? fmtPct(m['52WeekPriceReturnDaily']), null],
+    ['52W Return',        m['52WeekPriceReturnDaily'] ? fmtPct(m['52WeekPriceReturnDaily']) : '—'],
   ];
   return (
     <div className="sd-panel">
