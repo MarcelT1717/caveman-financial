@@ -223,9 +223,10 @@ const STATIC_DATA = {
 // ── FRED fetch ────────────────────────────────────────────────────────────────
 
 async function fetchFred(sid, key) {
+  // No frequency param — let FRED return native frequency; toMonthlyMap handles downsampling
   const params = new URLSearchParams({
     series_id: sid, api_key: key, file_type: 'json',
-    observation_start: '2004-01-01', frequency: 'm',
+    observation_start: '2004-01-01',
   });
   const res = await fetch(`${FRED_BASE}?${params}`);
   if (!res.ok) throw new Error(`${sid}: HTTP ${res.status}`);
@@ -240,18 +241,31 @@ async function loadLiveData(key, onProgress) {
   const all = [...gEntries, ...iEntries, ...fEntries];
   let done = 0;
 
+  // Validate key with a lightweight probe before fetching all series
+  try {
+    await fetchFred('CPIAUCSL', key);
+  } catch (e) {
+    throw new Error('FRED API key invalid or unreachable — check your key and try again');
+  }
+
   const results = {};
-  await Promise.allSettled(
-    all.map(async ([sid]) => {
-      try {
-        results[sid] = await fetchFred(sid, key);
-      } catch (e) {
-        console.warn(e.message);
-      } finally {
-        onProgress?.(++done / all.length);
-      }
-    })
-  );
+  // Fetch in small batches to stay within FRED's rate limit (120 req/min)
+  const BATCH = 6;
+  for (let i = 0; i < all.length; i += BATCH) {
+    const batch = all.slice(i, i + BATCH);
+    await Promise.allSettled(
+      batch.map(async ([sid]) => {
+        try {
+          results[sid] = await fetchFred(sid, key);
+        } catch (e) {
+          console.warn(`FRED skip: ${e.message}`);
+        } finally {
+          onProgress?.(++done / all.length);
+        }
+      })
+    );
+    if (i + BATCH < all.length) await new Promise(r => setTimeout(r, 300));
+  }
 
   const gZMaps = gEntries.map(([sid, [, how, inv]]) =>
     results[sid] ? transformSeries(results[sid], how, inv) : {});
@@ -262,8 +276,8 @@ async function loadLiveData(key, onProgress) {
   const iComp = buildComposite(iZMaps);
   const panel = buildPanel(gComp, iComp);
 
-  if (panel.length < 12) {
-    throw new Error('Insufficient data from FRED — verify your API key and try again');
+  if (panel.length < 3) {
+    throw new Error('Too few data points returned — some series may be unavailable');
   }
 
   const latestZ = (zMap) => {
@@ -566,9 +580,14 @@ const MacroRegime = () => {
       const cached = sessionStorage.getItem('mrm_cache');
       if (cached) {
         const { ts, result } = JSON.parse(cached);
-        if (Date.now() - ts < 86400000) { setData(result); return; }
+        // Ignore cache if older than 24h or panel is empty (from a failed previous fetch)
+        if (Date.now() - ts < 86400000 && result?.panel?.length > 2) {
+          setData(result);
+          return;
+        }
       }
     } catch {}
+    sessionStorage.removeItem('mrm_cache');
     fetchLive();
   }, [fetchLive]);
 
