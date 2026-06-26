@@ -262,6 +262,10 @@ async function loadLiveData(key, onProgress) {
   const iComp = buildComposite(iZMaps);
   const panel = buildPanel(gComp, iComp);
 
+  if (panel.length < 12) {
+    throw new Error('Insufficient data from FRED — verify your API key and try again');
+  }
+
   const latestZ = (zMap) => {
     const k = sortedKeys(zMap);
     return k.length ? zMap[k[k.length - 1]] : null;
@@ -569,13 +573,16 @@ const MacroRegime = () => {
   }, [fetchLive]);
 
   const { panel, growthIndicators, inflIndicators, compositeHistory, finData, liveData } = data;
-  const latest = panel[panel.length - 1];
-  const prev   = panel[panel.length - 2];
+  const latest = panel.length > 0 ? panel[panel.length - 1] : STATIC_DATA.panel[STATIC_DATA.panel.length - 1];
+  const prev   = panel.length > 1 ? panel[panel.length - 2] : null;
   const regime = latest?.regime || 'Stagflation';
   const streak = currentStreak(panel);
 
-  const gDelta  = prev ? latest.growth    - prev.growth    : null;
-  const iDelta  = prev ? latest.inflation - prev.inflation : null;
+  const latestGrowth    = latest?.growth    ?? 0;
+  const latestInflation = latest?.inflation ?? 0;
+  const latestDate      = latest?.date      ?? '—';
+  const gDelta  = prev != null ? latestGrowth    - (prev.growth    ?? 0) : null;
+  const iDelta  = prev != null ? latestInflation - (prev.inflation ?? 0) : null;
 
   return (
     <div className="min-h-screen">
@@ -636,8 +643,8 @@ const MacroRegime = () => {
         <div className="mrm-metrics-row">
           <div className="mrm-metric-card">
             <div className="mrm-metric-label">Growth Composite</div>
-            <div className="mrm-metric-value" style={{ color: latest.growth >= 0 ? '#3b82f6' : '#94a3b8' }}>
-              {latest.growth >= 0 ? '+' : ''}{latest.growth.toFixed(2)}σ
+            <div className="mrm-metric-value" style={{ color: latestGrowth >= 0 ? '#3b82f6' : '#94a3b8' }}>
+              {latestGrowth >= 0 ? '+' : ''}{latestGrowth.toFixed(2)}σ
             </div>
             {gDelta != null && (
               <div className="mrm-metric-delta" style={{ color: gDelta >= 0 ? '#22c55e' : '#ef4444' }}>
@@ -648,8 +655,8 @@ const MacroRegime = () => {
           </div>
           <div className="mrm-metric-card">
             <div className="mrm-metric-label">Inflation Composite</div>
-            <div className="mrm-metric-value" style={{ color: latest.inflation >= 0 ? '#ef4444' : '#22c55e' }}>
-              {latest.inflation >= 0 ? '+' : ''}{latest.inflation.toFixed(2)}σ
+            <div className="mrm-metric-value" style={{ color: latestInflation >= 0 ? '#ef4444' : '#22c55e' }}>
+              {latestInflation >= 0 ? '+' : ''}{latestInflation.toFixed(2)}σ
             </div>
             {iDelta != null && (
               <div className="mrm-metric-delta" style={{ color: iDelta >= 0 ? '#ef4444' : '#22c55e' }}>
@@ -670,7 +677,7 @@ const MacroRegime = () => {
           <div className="mrm-metric-card">
             <div className="mrm-metric-label">Data as of</div>
             <div className="mrm-metric-value" style={{ fontSize: 20 }}>
-              {latest.date}
+              {latestDate}
             </div>
             <div className="mrm-metric-delta" style={{ color: 'rgba(255,255,255,0.35)' }}>
               {liveData ? 'FRED live' : 'snapshot'}
