@@ -7,6 +7,7 @@ import {
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useSubscribe } from '../context/SubscribeContext';
+import StockDrawer from '../components/StockDrawer';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -99,6 +100,7 @@ const Sectors = () => {
   const [stockData, setStockData] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
+  const [selectedTicker, setSelectedTicker] = useState(null);
   const { openSubscribeModal } = useSubscribe();
 
   const [gridRef, gridVisible] = useScrollReveal();
@@ -234,7 +236,7 @@ const Sectors = () => {
                       const pos = change !== null && change >= 0;
 
                       return (
-                        <div key={ticker} className="sc-stock-row">
+                        <div key={ticker} className="sc-stock-row sc-stock-row-clickable" onClick={() => setSelectedTicker(ticker)}>
                           <span className="sc-stock-rank">{ti + 1}</span>
                           <span className="sc-stock-ticker">{ticker}</span>
                           <div className="sc-stock-right">
@@ -343,6 +345,8 @@ const Sectors = () => {
       </section>
 
     </div>
+
+    <StockDrawer ticker={selectedTicker} onClose={() => setSelectedTicker(null)} />
   );
 };
 
