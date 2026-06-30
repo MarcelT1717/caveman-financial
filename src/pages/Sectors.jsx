@@ -199,6 +199,7 @@ const Sectors = () => {
         sectors={allSectors}
         stockData={stockData}
         sectorColors={SECTOR_COLORS}
+        onTickerClick={setSelectedTicker}
       />
 
       {/* ── Sectors Grid ── */}

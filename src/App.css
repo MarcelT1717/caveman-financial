@@ -6132,11 +6132,12 @@ section {
   flex-shrink: 0;
 }
 
-.wk52-loading-bar-wrap {
-  margin-bottom: 24px;
+/* loading bar */
+.wk52-loading-wrap {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 24px;
 }
 
 .wk52-loading-track {
@@ -6160,6 +6161,7 @@ section {
   white-space: nowrap;
 }
 
+/* grid */
 .wk52-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -6178,59 +6180,112 @@ section {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   opacity: 0.85;
 }
 
+/* each stock row */
 .wk52-row {
   display: grid;
-  grid-template-columns: 52px 1fr 38px 58px 48px;
+  grid-template-columns: 80px 1fr 68px;
   align-items: center;
-  gap: 8px;
-  padding: 5px 0;
-  border-bottom: 1px solid var(--border-subtle);
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  margin: 2px -10px;
+  border: 1px solid transparent;
 }
 
-.wk52-row:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.wk52-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-subtle);
+}
+
+.wk52-row:focus-visible {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+/* col 1 — ticker + price */
+.wk52-stock-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .wk52-ticker {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-primary);
+  letter-spacing: 0.02em;
 }
 
-.wk52-bar-wrap {
+.wk52-current {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* col 2 — range bar */
+.wk52-range-col {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wk52-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+  padding: 0 1px;
 }
 
 .wk52-bar-track {
+  position: relative;
   width: 100%;
-  height: 5px;
-  background: var(--bg-tertiary);
+  height: 7px;
+  background: rgba(255, 255, 255, 0.07);
   border-radius: 99px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .wk52-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
   height: 100%;
   border-radius: 99px;
   transition: width 0.7s ease;
-  min-width: 2px;
+  min-width: 3px;
+}
+
+.wk52-bar-knob {
+  position: absolute;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 2.5px solid;
+  transition: left 0.7s ease;
+  z-index: 2;
 }
 
 .wk52-bar-shimmer {
-  height: 100%;
-  width: 40%;
+  position: absolute;
+  inset: 0;
   border-radius: 99px;
   background: linear-gradient(
     90deg,
-    var(--bg-tertiary) 0%,
-    rgba(100, 116, 139, 0.35) 50%,
-    var(--bg-tertiary) 100%
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.04) 100%
   );
   background-size: 200% 100%;
   animation: wk52-shimmer 1.5s linear infinite;
@@ -6241,37 +6296,41 @@ section {
   100% { background-position: -200% 0; }
 }
 
-.wk52-pct {
-  font-size: 11px;
-  font-weight: 600;
-  text-align: right;
+.wk52-range-pct-row {
+  font-size: 9px;
   font-variant-numeric: tabular-nums;
+  text-align: center;
+  opacity: 0.8;
 }
 
-.wk52-price {
-  font-size: 11px;
-  color: var(--text-secondary);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
+/* col 3 — % from 52wk high */
+.wk52-high-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
 
-.wk52-from-high {
-  font-size: 11px;
+.wk52-from-val {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.wk52-from-label {
+  font-size: 9px;
   color: var(--text-muted);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+@media (max-width: 900px) {
+  .wk52-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-  .wk52-grid {
-    grid-template-columns: 1fr;
-  }
-  .wk52-header {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .wk52-legend {
-    gap: 12px;
-  }
+  .wk52-header { flex-direction: column; gap: 16px; }
+  .wk52-legend { gap: 12px; }
+  .wk52-row { grid-template-columns: 72px 1fr 60px; }
 }
 
