@@ -424,7 +424,7 @@ const Home = () => {
           <div className="hero-content-financial">
             <div className="hero-live-badge mx-auto">
               <span className="hero-live-dot"></span>
-              Constantly Updated Research
+              Multi-Sector Equity Research
             </div>
 
             <h1 className="hero-title-financial">
