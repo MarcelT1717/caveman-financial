@@ -8,6 +8,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useSubscribe } from '../context/SubscribeContext';
 import StockDrawer from '../components/StockDrawer';
+import FiftyTwoWeekChart from '../components/FiftyTwoWeekChart';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -192,6 +193,13 @@ const Sectors = () => {
           ))}
         </div>
       </div>
+
+      {/* ── 52-Week Range Chart ── */}
+      <FiftyTwoWeekChart
+        sectors={allSectors}
+        stockData={stockData}
+        sectorColors={SECTOR_COLORS}
+      />
 
       {/* ── Sectors Grid ── */}
       <section className="container py-16" ref={gridRef}>
